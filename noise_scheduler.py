@@ -63,15 +63,15 @@ class NoiseScheduler():
         self.sqrt_one_minus_alphas_cumprod_t = self.get_index_at_t(t, self.sqrt_one_minus_alphas_cumprod, x.shape)
         self.sqrt_recip_alphas_t = self.get_index_at_t(t, self.sqrt_recip_alphas, x.shape)
 
-        model_mean = self.sqrt_recip_alphas_t * (x - self.betas_t*model(x, t)/ self.sqrt_one_minus_alphas_cumprod_t)
+        model_mean = self.sqrt_recip_alphas_t * (x - self.betas_t*model(x, t) / self.sqrt_one_minus_alphas_cumprod_t)
 
         self.posterior_variance_t = self.get_index_at_t(t, self.posterior_variance, x.shape)
 
         if t == 0:
             return model_mean
         else:
-            noise = torch.randn_like(x).to(self.device)
-            return model_mean + torch.sqrt(self.posterior_variance_t)*noise + model_mean
+            noise = torch.randn_like(x)
+            return model_mean + torch.sqrt(self.posterior_variance_t)*noise
         
     @torch.no_grad()
     def sample_plot_image(self, IMG_SIZE, model):
@@ -86,8 +86,7 @@ class NoiseScheduler():
             img = self.sample_timestep(img, t, model)
             if i%stepsize == 0:
                 plt.subplot(1, num_images, int((i/stepsize)+1))
-                self.show(img.cpu().detach())
-                print(img.shape)
+                self.show(img.detach().cpu())
                 plt.axis("off")
 
         plt.show()

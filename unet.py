@@ -14,7 +14,7 @@ class SinusoidalPositionEmbedding(nn.Module):
         device = time.device
         half_dim = self.dim//2
         embeddings = math.log(10000)/ (half_dim -1)
-        embeddings = torch.exp(torch.arange(half_dim, device=device)*-embeddings)
+        embeddings = torch.exp(torch.arange(half_dim, device=device)* -embeddings)
         embeddings = time[:,None] * embeddings[None, :]
         embeddings = torch.cat((embeddings.sin(), embeddings.cos()), dim=-1)
 
@@ -46,7 +46,7 @@ class Block(nn.Module):
         time_emb = self.relu(self.time_mlp(t))
         # extend last 2 dimensions
 
-        time_emb = time_emb[(...,)+ (None,)*2]
+        time_emb = time_emb[(..., )+ (None, )*2]
 
         # Add time channel
         h = h + time_emb

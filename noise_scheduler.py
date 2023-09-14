@@ -86,7 +86,9 @@ class NoiseScheduler():
             img = self.sample_timestep(img, t, model)
             if i%stepsize == 0:
                 plt.subplot(1, num_images, int((i/stepsize)+1))
-                self.show(img[0].cpu().detach())
+                self.show(img.cpu().detach())
+                print(img.shape)
+                plt.axis("off")
 
         plt.show()
 

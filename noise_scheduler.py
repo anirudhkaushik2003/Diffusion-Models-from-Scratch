@@ -30,7 +30,8 @@ class NoiseScheduler():
     
     def get_index_at_t(self, t, vals, x_shape):
         batch_size = t.shape[0]
-        out = vals.gather(-1, t.cpu())
+
+        out = vals.cpu().gather(-1, t.cpu())
         return out.reshape(batch_size, *((1,)*(len(x_shape) -1))).to(t.device)
         
     def forward_diffusion(self, x_0, t):
@@ -84,7 +85,7 @@ class NoiseScheduler():
             t = torch.full((1,), i , device = self.device, dtype=torch.long)
             img = self.sample_timestep(img, t, model)
             if i%stepsize == 0:
-                plt.subplot(1, num_images, i/stepsize+1)
+                plt.subplot(1, num_images, int((i/stepsize)+1))
                 self.show(img[0].cpu().detach())
 
         plt.show()

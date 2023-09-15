@@ -100,5 +100,8 @@ class SimpleUNET(nn.Module):
             x = up(x,t)
 
         return self.output(x)
+
+
+
     
 

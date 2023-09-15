@@ -7,11 +7,12 @@ import matplotlib.pyplot as plt
 from torchvision import transforms
 
 class NoiseScheduler():
-    def __init__(self, beta_start, beta_end, timesteps, batch_size):
+    def __init__(self, beta_start, beta_end, timesteps, batch_size, img_channels=1):
         self.beta_start = beta_start
         self.beta_end = beta_end
         self.timesteps = timesteps
         self.batch_size = batch_size
+        self.img_channels = img_channels
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def beta_scheduler(self):
@@ -76,7 +77,7 @@ class NoiseScheduler():
     @torch.no_grad()
     def sample_plot_image(self, IMG_SIZE, model):
         img_size = IMG_SIZE
-        img = torch.randn((1,3,img_size, img_size), device = self.device)
+        img = torch.randn((1,self.img_channels,img_size, img_size), device = self.device)
         plt.figure(figsize=(15,15))
         num_images = 10
         stepsize = int(self.timesteps/num_images)

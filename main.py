@@ -11,6 +11,8 @@ from tqdm import tqdm
 import torch.nn.functional as F
 from torch.optim import Adam
 
+from unet import UNet
+from noise_scheduler import NoiseScheduler
 
 BATCH_SIZE = 128
 IMG_SIZE = 64
@@ -33,13 +35,12 @@ def load_transformed_dataset():
 data = load_transformed_dataset()
 data_loader = DataLoader(data, batch_size=BATCH_SIZE, shuffle=True, num_workers=4, drop_last=True)
 
-from noise_scheduler import NoiseScheduler
 beta_start = 0.0001
 beta_end = 0.02
-timesteps = 300
+timesteps = 1000
 
 
-noise_scheduler = NoiseScheduler(beta_start, beta_end, timesteps, 32)
+noise_scheduler = NoiseScheduler(beta_start, beta_end, timesteps, BATCH_SIZE)
 noise_scheduler.beta_scheduler()
 
 image = next(iter(data_loader))[0]
@@ -56,9 +57,8 @@ for idx in range(0, timesteps, stepsize):
     image, noise  = noise_scheduler.forward_diffusion(image, t)
     noise_scheduler.show(image.cpu().detach())
 
-from unet import SimpleUNET
 
-model = SimpleUNET()
+model = UNet(3,3)
 print("Num params: ", sum(p.numel() for p in model.parameters()))
 
 def get_loss(model, x_0, t):
@@ -83,11 +83,9 @@ def restart_last_checkpoint(model):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 # load_model_from_checkpoint(model, "/ssd_scratch/cvit/anirudhkaushik/checkpoints/unet.pt")
-model = SimpleUNET()
-model = torch.nn.DataParallel(model)
-restart_last_checkpoint(model)
+model = UNet(3,3)
 model = model.to(device)
-optimizer = Adam(model.parameters(), lr=0.001)
+optimizer = Adam(model.parameters(), lr=1e-5)
 epochs = 500
 
 for epoch in range(epoch_start, epochs):
